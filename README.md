@@ -6,5 +6,5 @@ Cybersecurity course 2024
 |Date   |used hours   |subject   | output  |
 |---|---|---|---|
 | 31.10.  |2   |Lecture watched   |done logbook   |   
-| väri  |   |   |   |   
-| joku  |   |   |   |   
+| 31.10.  |2   |Module 1   |Module 1 done   |   
+|   |   |   |   |   
