@@ -8,3 +8,4 @@ Cybersecurity course 2024
 | 31.10.  |2   |Lecture watched   |done logbook   |   
 | 31.10.  |2   |Module 1   |Module 1 done   |   
 |1.11   |5   |rest of the modules   |completed course   |   
+|15.11   |3   |Portswigger   |done three labs   |  
