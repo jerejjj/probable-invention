@@ -99,7 +99,4 @@ Tämä raportti kuvaa viisi kriittisintä ongelmaa, jotka havaittiin varausjärj
 2. Ota käyttöön **Anti-CSRF-tunnisteet** CSRF-hyökkäysten torjumiseksi.
 3. Tarkista autentikointiturvallisuus, CSP-politiikat ja HTTP-otsikot.
 
----
 
-## Lokikirjan linkki
-[Linkki lokikirjaan](#)  
