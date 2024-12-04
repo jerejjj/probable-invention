@@ -1,102 +1,128 @@
 # Varausjärjestelmän tietoturvaraportti
 
 ## Yleiskatsaus
-Tämä raportti kuvaa viisi kriittisintä ongelmaa, jotka havaittiin varausjärjestelmässä. Ongelmat löytyivät käyttämällä ZAP (OWASP ZAP) -työkalua tietoturvatarkastukseen sekä järjestelmän manuaalisella testaamisella.
+Tämä raportti kuvaa havaittuja tietoturvaongelmia varausjärjestelmässä. Ongelmat löydettiin käyttämällä OWASP ZAP -työkalua sekä manuaalista testausta. Raportin tavoitteena on tuoda esiin kriittisimmät tietoturvariskit ja antaa suosituksia niiden korjaamiseksi.  
 
 ---
 
 ## Havaitut ongelmat
 
-### 1. **Anti-CSRF-tunnisteiden puuttuminen**
-   - **Riskitaso:** Keskitaso  
-   - **Tapauksia:** 2  
+### 1. **Administrator-käyttäjätilin luominen ilman rajoituksia**
+   - **Riskitaso:** Korkea  
 
    #### Mikä on vialla?  
-   Järjestelmästä puuttuvat Anti-CSRF-tunnisteet kriittisistä lomakkeista ja pyynnöistä, mikä tekee sen alttiiksi Cross-Site Request Forgery (CSRF) -hyökkäyksille.
+   Sivustolle kuka tahansa voi luoda käyttäjätilin ja asettaa itsensä `administrator`-rooliin. Tämä antaa täydet hallintaoikeudet järjestelmään.
 
    #### Kuinka se löydettiin?  
-   ZAP skannaus havaitsi, että kahdessa keskeisessä päätepisteessä ei ole CSRF-suojausta.
+   Manuaalisen testauksen aikana havaittiin, että roolin määrittelyä ei rajoiteta käyttäjän rekisteröintiprosessissa.
 
    #### Kuinka se tulisi korjata?  
-   - Lisää CSRF-tunnisteet kaikkiin tilaa muuttaviin pyyntöihin (esim. varaukset, käyttäjätilien muutokset).
-   - Varmista palvelinpuolella, että tunnisteet validoidaan ja pyynnöt tulevat aidoista istunnoista.
+   - Lisää palvelinpuolinen validointi, joka estää käyttäjiä luomasta `administrator`-rooleja ilman lupaa.
+   - Käytä järjestelmänvalvojan hyväksyntää tai erillistä kutsuprosessia.
 
 ---
 
-### 2. **Autentikointipyyntö tunnistettu**
-   - **Riskitaso:** Informatiivinen  
+### 2. **Anti-CSRF-tunnisteiden puuttuminen**
+   - **Riskitaso:** Keskitaso  
+   - **Tapauksia:** 4  
+
+   #### Mikä on vialla?  
+   Järjestelmä ei sisällä Anti-CSRF-tunnisteita kriittisissä toiminnoissa, mikä altistaa sen CSRF-hyökkäyksille.  
+
+   #### Kuinka se löydettiin?  
+   OWASP ZAP liputti neljä tapausta, joissa CSRF-tunnisteet puuttuivat.
+
+   #### Kuinka se tulisi korjata?  
+   - Lisää CSRF-tunnisteet kaikkiin tilaa muuttaviin pyyntöihin.
+   - Varmista palvelinpuolella, että tunnisteet tarkistetaan jokaisessa pyynnössä.
+
+---
+
+### 3. **Format String Error**
+   - **Riskitaso:** Keskitaso  
    - **Tapauksia:** 1  
 
    #### Mikä on vialla?  
-   Järjestelmän autentikointiprosessi tunnistettiin, mikä viittaa mahdollisiin puutteisiin käyttäjätietojen turvallisessa käsittelyssä.
+   Sovellus voi olla altis formaattiongelmille, mikä voi mahdollistaa haitallisen koodin suorittamisen tietyissä tilanteissa.
 
    #### Kuinka se löydettiin?  
-   ZAP havaitsi autentikointipyynnön skannauksen aikana ja suositteli tarkempaa tarkastelua.
+   ZAP tunnisti tämän ongelman tietojen käsittelyyn liittyvässä osassa.
 
    #### Kuinka se tulisi korjata?  
-   - Varmista, että kaikki autentikointipyynnöt lähetetään HTTPS:n kautta suojaamaan tunnistetietoja.
-   - Ota käyttöön mekanismit, kuten nopeuden rajoittaminen, turvallinen istuntojen hallinta ja salasanan hajautus.
+   - Käytä turvallisia tietojen käsittelymekanismeja ja vältä suoria merkkijonon muotoiluoperaatioita.
+   - Testaa ja validoi kaikki käyttäjän syöttämät tiedot.
 
 ---
 
-### 3. **Virhe varauksia tehdessä**
-   - **Riskitaso:** Korkea (toiminnallinen ongelma)  
-
-   #### Mikä on vialla?  
-   Käyttäjät eivät voi luoda uusia varauksia järjestelmässä. Tämä haittaa järjestelmän ydintoiminnallisuutta.
-
-   #### Kuinka se löydettiin?  
-   Tämä ongelma havaittiin manuaalisen testauksen aikana, kun yritettiin tehdä varausta. Järjestelmä palautti virheviestin: `"Error during reservations."`
-
-   #### Kuinka se tulisi korjata?  
-   - Tarkista palvelimen lokit ja sovelluksen debug-tulosteet ongelman syyn selvittämiseksi.
-   - Varmista, että varausdata validoidaan ja käsitellään oikein.
-   - Varmista, että tietokannan rakenne tukee kaikkia varauksille vaadittavia kenttiä.
-
----
-
-### 4. **CSP: Yleinen ("Wildcard") direktiivi**
-   - **Riskitaso:** Keskitaso  
-
-   #### Mikä on vialla?  
-   Sisällön turvakäytäntö (CSP) sisältää yleisen direktiivin (`*`), mikä mahdollistaa resurssien lataamisen mistä tahansa lähteestä. Tämä lisää riskiä haitallisten skriptien suorittamisesta.
-
-   #### Kuinka se löydettiin?  
-   ZAP liputti tämän tietoturvariskin skannauksen aikana.
-
-   #### Kuinka se tulisi korjata?  
-   - Korvaa CSP:n yleiset direktiivit tarkemmilla määrittelyillä, jotka sallivat resurssien lataamisen vain luotettavista lähteistä.
-   - Käytä tiukkaa CSP-politiikkaa XSS- ja tietojen syöttöhyökkäysten ehkäisemiseksi.
-
----
-
-### 5. **X-Content-Type-Options -otsikko puuttuu**
+### 4. **Persistent Cross-Site Scripting (XSS) JSON-vastauksissa**
    - **Riskitaso:** Matala  
    - **Tapauksia:** 2  
 
    #### Mikä on vialla?  
-   HTTP-vastauksista puuttuu `X-Content-Type-Options` -otsikko, mikä sallii selainten arvailla tiedostotyyppejä ja mahdollisesti suorittaa haitallista sisältöä.
+   Sovellus sisältää pysyvän XSS-haavoittuvuuden JSON-vastauksissa, mikä voi johtaa haitallisen koodin suorittamiseen käyttäjän selaimessa.  
 
    #### Kuinka se löydettiin?  
-   ZAP havaitsi tämän otsikon puuttumisen kahdessa HTTP-vastauksessa.
+   ZAP havaitsi tämän JSON-vastauksista, jotka sisältävät käsittelemättömiä käyttäjän syöttämiä tietoja.
 
    #### Kuinka se tulisi korjata?  
-   - Lisää `X-Content-Type-Options: nosniff` -otsikko kaikkiin HTTP-vastauksiin MIME-tyyppien arvaamisen estämiseksi.
-   - Varmista, että otsikko sovelletaan johdonmukaisesti kaikille resursseille.
+   - Suodata ja koodaa kaikki käyttäjän syöttämät tiedot ennen niiden palauttamista vastauksissa.
+   - Käytä Content Security Policy -otsikoita hyökkäysten torjumiseksi.
+
+---
+
+### 5. **Tietovuoto: Epäilyttävät kommentit**
+   - **Riskitaso:** Informatiivinen  
+   - **Tapauksia:** 1  
+
+   #### Mikä on vialla?  
+   Sovelluksen lähdekoodissa on epäilyttäviä kommentteja, jotka voivat paljastaa tietoa järjestelmän rakenteesta.
+
+   #### Kuinka se löydettiin?  
+   ZAP löysi kommentteja, jotka sisältävät potentiaalisesti arkaluonteista tietoa.
+
+   #### Kuinka se tulisi korjata?  
+   - Poista kaikki tuotantokoodissa olevat tarpeettomat tai epäilyttävät kommentit.
+   - Varmista, että kehittäjät eivät jätä debug-tietoja julkiseen käyttöön.
+
+---
+
+### 6. **Session Management Response Identified**
+   - **Riskitaso:** Informatiivinen  
+   - **Tapauksia:** 4  
+
+   #### Mikä on vialla?  
+   Istunnonhallintamekanismit on tunnistettu, mutta niiden turvallisuus voi vaatia tarkempaa analysointia.
+
+   #### Kuinka se löydettiin?  
+   ZAP havaitsi useita tapauksia, joissa istuntotietoja paljastui HTTP-vastauksissa.
+
+   #### Kuinka se tulisi korjata?  
+   - Varmista, että istuntotunnisteet salataan ja lähetetään vain HTTPS:n kautta.
+   - Toteuta istuntojen aikakatkaisu ja suojattu hallinta.
 
 ---
 
 ## Yhteenveto
+
 ### Keskeiset havainnot:
-1. **Anti-CSRF-tunnisteiden puuttuminen:** Keskitasoinen riski, edellyttää välitöntä korjaamista.
-2. **Autentikointipyyntö tunnistettu:** Suosittelee autentikointiturvallisuuden tarkistamista.
-3. **Varausvirhe:** Korkea prioriteetti; korjaa järjestelmän ydintoiminnallisuus.
-4. **CSP: Yleinen direktiivi:** Keskitasoinen riski, tiukempi CSP-politiikka tarvitaan.
-5. **X-Content-Type-Options -otsikko puuttuu:** Matala riski, mutta tärkeä tietoturvan täydentämiseksi.
+1. **Administrator-käyttäjätilin luominen ilman rajoituksia:** Suurin tietoturvariski.
+2. **Anti-CSRF-tunnisteiden puuttuminen:** Altistaa CSRF-hyökkäyksille.
+3. **Format String Error:** Keskitasoinen riski; voi mahdollistaa haitallisen koodin suorittamisen.
+4. **Persistent XSS JSON-vastauksissa:** Pieni, mutta merkittävä riski käyttäjien turvallisuudelle.
+5. **Epäilyttävät kommentit:** Paljastavat mahdollisesti arkaluonteista tietoa.
+6. **Istuntotunnisteiden hallinta:** Informatiivinen huomio, joka vaatii jatkotoimenpiteitä.
 
-### Seuraavat vaiheet:
-1. Korjaa **varausvirhe** ensin järjestelmän toiminnan palauttamiseksi.
-2. Ota käyttöön **Anti-CSRF-tunnisteet** CSRF-hyökkäysten torjumiseksi.
-3. Tarkista autentikointiturvallisuus, CSP-politiikat ja HTTP-otsikot.
+---
 
+## Suositellut toimenpiteet
+1. Korjaa **administrator-roolin luontiongelma** estämällä roolien vapaa määrittely.
+2. Lisää **Anti-CSRF-tunnisteet** ja tarkista palvelinpuolen validointi.
+3. Korjaa **formaattiongelmat** käyttämällä turvallisia tietojen käsittelytapoja.
+4. Suodata ja koodaa **käyttäjätiedot** pysyvän XSS:n estämiseksi.
+5. Poista **epäilyttävät kommentit** tuotantokoodista.
+6. Paranna **istuntotunnisteiden hallintaa** ja varmista niiden turvallisuus.
 
+---
+
+## Lokikirjan linkki
+[Linkki lokikirjaan](#)  
