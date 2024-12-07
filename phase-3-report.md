@@ -70,23 +70,7 @@ Tämä raportti kuvaa havaittuja tietoturvaongelmia varausjärjestelmässä. Ong
 
 ---
 
-### 5. **Tietovuoto: Epäilyttävät kommentit**
-   - **Riskitaso:** Informatiivinen  
-   - **Tapauksia:** 1  
-
-   #### Mikä on vialla?  
-   Sovelluksen lähdekoodissa on epäilyttäviä kommentteja, jotka voivat paljastaa tietoa järjestelmän rakenteesta.
-
-   #### Kuinka se löydettiin?  
-   ZAP löysi kommentteja, jotka sisältävät potentiaalisesti arkaluonteista tietoa.
-
-   #### Kuinka se tulisi korjata?  
-   - Poista kaikki tuotantokoodissa olevat tarpeettomat tai epäilyttävät kommentit.
-   - Varmista, että kehittäjät eivät jätä debug-tietoja julkiseen käyttöön.
-
----
-
-### 6. **Session Management Response Identified**
+### 5. **Session Management Response Identified**
    - **Riskitaso:** Informatiivinen  
    - **Tapauksia:** 4  
 
@@ -109,8 +93,7 @@ Tämä raportti kuvaa havaittuja tietoturvaongelmia varausjärjestelmässä. Ong
 2. **Anti-CSRF-tunnisteiden puuttuminen:** Altistaa CSRF-hyökkäyksille.
 3. **Format String Error:** Keskitasoinen riski; voi mahdollistaa haitallisen koodin suorittamisen.
 4. **Persistent XSS JSON-vastauksissa:** Pieni, mutta merkittävä riski käyttäjien turvallisuudelle.
-5. **Epäilyttävät kommentit:** Paljastavat mahdollisesti arkaluonteista tietoa.
-6. **Istuntotunnisteiden hallinta:** Informatiivinen huomio, joka vaatii jatkotoimenpiteitä.
+5. **Istuntotunnisteiden hallinta:** Informatiivinen huomio, joka vaatii jatkotoimenpiteitä.
 
 ---
 
@@ -119,10 +102,9 @@ Tämä raportti kuvaa havaittuja tietoturvaongelmia varausjärjestelmässä. Ong
 2. Lisää **Anti-CSRF-tunnisteet** ja tarkista palvelinpuolen validointi.
 3. Korjaa **formaattiongelmat** käyttämällä turvallisia tietojen käsittelytapoja.
 4. Suodata ja koodaa **käyttäjätiedot** pysyvän XSS:n estämiseksi.
-5. Poista **epäilyttävät kommentit** tuotantokoodista.
-6. Paranna **istuntotunnisteiden hallintaa** ja varmista niiden turvallisuus.
+5. Paranna **istuntotunnisteiden hallintaa** ja varmista niiden turvallisuus.
 
 ---
 
-## Lokikirjan linkki
-[Linkki lokikirjaan](#)  
+## Link to logbook
+[[Linkki](https://github.com/jerejjj/probable-invention/blob/fe0cdd0d06daf74af03d1d11ed9c5297c0c2ae15/README.md)]  
