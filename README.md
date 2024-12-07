@@ -12,6 +12,10 @@ Cybersecurity course 2024
 |19.11   |3   |Booking system project   |done first verison and test  |  
 |20.11   |2   |Booking system project   |updated csp header | 
 |21.11   |2   |Booking system project   |last modification and tests for phase 1  |  
+|1.12.   |3   |Booking system project   |Phase 2 report generated  | 
+|3.12.   |1   |Booking system project   |Phase 2 edited amd tried to submit  | 
+|3.12.   |3   |Booking system project   |Phase 3 report generated  | 
+|4.12.   |2   |Booking system project   |Phase 3 report found and added new alerts  | 
 
 
 Linkki ensimmäiseen testiin: https://github.com/jerejjj/probable-invention/blob/main/registaration-page-first.md
